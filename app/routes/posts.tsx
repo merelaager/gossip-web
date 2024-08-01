@@ -4,10 +4,17 @@ import { json, LoaderFunction } from "@remix-run/node";
 
 import { prisma } from "~/utils/db.server";
 import { requireUserId } from "~/utils/auth.server";
+import { $Enums } from "@prisma/client";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await requireUserId(request);
+  const userId = await requireUserId(request);
+  const userRole = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
   return json({
+    role: userRole?.role,
     posts: await prisma.post.findMany(),
   });
 };
@@ -23,6 +30,13 @@ export default function PostsRoute() {
             <Link to="/posts">
               <h1 className="mx-4 pt-2">Postitused</h1>
             </Link>
+            {data.role === $Enums.Role.ADMIN ? (
+              <Link to="/posts/waitlist">
+                <h1 className="mx-4 pt-2">Ootel</h1>
+              </Link>
+            ) : (
+              ""
+            )}
           </nav>
           <div className="">
             <Link

@@ -68,7 +68,7 @@ export async function getUser(request: Request) {
   }
 
   try {
-      return await prisma.user.findUnique({
+    return await prisma.user.findUnique({
       where: { id: parseInt(userId as string) },
       select: { id: true, username: true },
     });
