@@ -17,6 +17,7 @@ import {
   validateUsername,
 } from "~/utils/validators.server";
 import { getUser, login, register } from "~/utils/auth.server";
+import { badRequest } from "~/utils/request.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -30,10 +31,11 @@ export const action: ActionFunction = async ({ request }) => {
     typeof username !== "string" ||
     typeof password !== "string"
   ) {
-    return json(
-      { error: `Vigased vormi andmed`, form: action },
-      { status: StatusCodes.BAD_REQUEST },
-    );
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: "Vigased vormi andmed",
+    });
   }
 
   if (action === "register" && typeof inviteCode !== "string") {
@@ -96,9 +98,6 @@ export default function Login() {
   const [errors, setErrors] = useState(actionData?.errors || {});
   const [formError, setFormError] = useState(actionData?.error || "");
 
-  // console.log("Errors:", errors);
-  // console.log("Form error:", formError);
-  // console.log("First load:", firstLoad);
   console.log(actionData);
 
   const [formData, setFormData] = useState({
@@ -147,15 +146,13 @@ export default function Login() {
         >
           {action === "login" ? "Loo konto" : "Logi sisse"}
         </button>
-        <h2 className="text-5xl font-extrabold text-pink-200">
-          Go-go-gossip
-        </h2>
+        <h2 className="text-5xl font-extrabold text-pink-200">Go-go-gossip</h2>
 
         <p className="font-semibold text-slate-300">
           {action === "login" ? "Logi sisse" : "Loo konto"}
         </p>
 
-        <Form method="POST" className="rounded-2xl bg-pink-200 p-6 w-96">
+        <Form method="POST" className="rounded-2xl bg-pink-200 mx-4 p-4">
           <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full">
             {formError}
           </div>
