@@ -34,7 +34,7 @@ export default function PostsRoute() {
           </div>
         </div>
       </header>
-      <main className="w-full">
+      <main className="w-full h-screen overflow-y-scroll">
         <section className="bg-pink-300">
           <h2 className="text-center font-bold py-2 border-b border-pink-500">
             Merelaagri gossip
