@@ -11,15 +11,13 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(uuid())
-  username     String     @unique
-  password     String
-  name         String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  posts        Post[]
-  useedCode    InviteCode @relation(fields: [inviteCodeId], references: [id])
-  inviteCodeId String     @unique
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
 }
 
 model Post {
@@ -38,5 +36,4 @@ model InviteCode {
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  usedBy    User?
 }
