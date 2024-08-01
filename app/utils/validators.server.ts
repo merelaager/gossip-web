@@ -1,6 +1,6 @@
 export const validateUsername = (username: string): string | undefined => {
-  if (username.length < 4) {
-    return "Kasutajanimi peab olema vähemalt 4 tähemärki pikk";
+  if (username.length < 3) {
+    return "Kasutajanimi peab olema vähemalt 3 tähemärki pikk";
   }
 };
 
