@@ -36,6 +36,7 @@ export default function ApprovePostRoute() {
           id={post.id}
           title={post.title}
           content={post.content}
+          createdAt={post.createdAt}
         />
       ))}
     </ul>
