@@ -57,7 +57,7 @@ export default function PostRoute() {
     <>
       <article className="bg-pink-300 px-4 py-2 border-b border-pink-500">
         <h3 className="font-bold">{post.title}</h3>
-        <p>{post.content}</p>
+        <p className="whitespace-pre-wrap">{post.content}</p>
       </article>
       {!data.published && data.role === $Enums.Role.ADMIN ? buttons : ""}
     </>

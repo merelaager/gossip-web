@@ -29,7 +29,7 @@ export const PostCard = ({ id, title, content, createdAt }: PostProps) => {
               {localisedDate} @ {localisedTime}
             </span>
           </div>
-          <p className="line-clamp-5">{content}</p>
+          <p className="line-clamp-5 whitespace-pre-wrap">{content}</p>
         </article>
       </Link>
     </li>
