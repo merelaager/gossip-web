@@ -7,3 +7,10 @@ import {StatusCodes} from "http-status-codes";
  */
 export const badRequest = <T>(data: T) =>
   json<T>(data, { status: StatusCodes.BAD_REQUEST });
+
+/**
+ * This helper function helps us to return the accurate HTTP status,
+ * 500 Internal Server Error, to the client.
+ */
+export const internalServerError = <T>(data: T) =>
+  json<T>(data, { status: StatusCodes.INTERNAL_SERVER_ERROR });

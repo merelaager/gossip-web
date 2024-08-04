@@ -1,10 +1,21 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { prisma } from "~/utils/db.server";
 import { requireUserId } from "~/utils/auth.server";
-import { badRequest } from "~/utils/request.server";
+import { badRequest, internalServerError } from "~/utils/request.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
+  const userData = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { shift: true },
+  });
+
+  if (!userData?.shift) {
+    return internalServerError({
+      error: "User shift not found.",
+    });
+  }
+
   const form = await request.formData();
   const title = form.get("title");
   const content = form.get("content");
@@ -29,7 +40,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const fields = { title, content };
 
   const post = await prisma.post.create({
-    data: { ...fields, authorId: userId },
+    data: { ...fields, authorId: userId, shift: userData.shift },
   });
   return redirect(`/posts/${post.id}`);
 };
