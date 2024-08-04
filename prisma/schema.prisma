@@ -11,15 +11,17 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
+  id        String      @id @default(uuid())
+  username  String      @unique
   password  String
   name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   posts     Post[]
-  role      Role     @default(USER)
+  role      Role        @default(USER)
   shift     Int
+  code      InviteCode? @relation(fields: [codeId], references: [id])
+  codeId    String?     @unique
 }
 
 model Post {
@@ -40,6 +42,7 @@ model InviteCode {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   shift     Int      @default(4)
+  usedBy    User?
 }
 
 enum Role {

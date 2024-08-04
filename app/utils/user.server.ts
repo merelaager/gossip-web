@@ -23,6 +23,7 @@ export const createUser = async (user: RegisterForm) => {
       username: user.username.toLocaleLowerCase("et"),
       password: passwordHash,
       shift: fetchCode.shift,
+      codeId: fetchCode.id,
     },
   });
 
