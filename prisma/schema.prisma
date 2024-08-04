@@ -19,7 +19,7 @@ model User {
   updatedAt DateTime @updatedAt
   posts     Post[]
   role      Role     @default(USER)
-  shift     Int
+  shift     Int      @default(4)
 }
 
 model Post {
