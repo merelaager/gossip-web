@@ -8,15 +8,12 @@ import { $Enums } from "@prisma/client";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  const userRole = await prisma.user.findUnique({
+  const userData = await prisma.user.findUnique({
     where: { id: userId },
     select: { role: true },
   });
 
-  return json({
-    role: userRole?.role,
-    posts: await prisma.post.findMany(),
-  });
+  return json({ role: userData?.role });
 };
 
 export default function PostsRoute() {

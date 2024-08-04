@@ -1,16 +1,27 @@
 import { PostCard } from "~/components/post";
 import React from "react";
-import { json } from "@remix-run/node";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { prisma } from "~/utils/db.server";
 import { useLoaderData } from "@remix-run/react";
+import { requireUserId } from "~/utils/auth.server";
 
-export const loader = async () => {
-  return json({
-    posts: await prisma.post.findMany({
-      where: { published: true },
-      orderBy: { createdAt: "desc" },
-    }),
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const userId = await requireUserId(request);
+  const userData = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { shift: true },
   });
+
+  if (!userData) {
+    return json({ posts: [] });
+  }
+
+  const posts = await prisma.post.findMany({
+    where: { shift: userData.shift, published: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return json({ posts });
 };
 
 export default function PostsIndexRoute() {

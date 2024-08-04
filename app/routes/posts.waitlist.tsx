@@ -8,21 +8,21 @@ import React from "react";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
-  const userRole = await prisma.user.findUnique({
+  const userData = await prisma.user.findUnique({
     where: { id: userId },
-    select: { role: true },
+    select: { role: true, shift: true },
   });
 
-  if (!userRole || userRole.role !== $Enums.Role.ADMIN) {
+  if (!userData || userData.role !== $Enums.Role.ADMIN) {
     throw redirect(`/`);
   }
 
-  return json({
-    posts: await prisma.post.findMany({
-      where: { published: false },
-      orderBy: { createdAt: "desc" },
-    }),
+  const posts = await prisma.post.findMany({
+    where: { shift: userData.shift, published: false },
+    orderBy: { createdAt: "desc" },
   });
+
+  return json({ posts });
 };
 
 export default function ApprovePostRoute() {
