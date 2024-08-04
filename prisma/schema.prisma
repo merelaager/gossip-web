@@ -19,7 +19,7 @@ model User {
   updatedAt DateTime @updatedAt
   posts     Post[]
   role      Role     @default(USER)
-  shift     Int?     @default(3)
+  shift     Int
 }
 
 model Post {
@@ -31,6 +31,7 @@ model Post {
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+  shift     Int      @default(3)
 }
 
 model InviteCode {
