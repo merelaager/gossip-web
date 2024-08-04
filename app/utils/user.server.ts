@@ -10,14 +10,19 @@ export const createUser = async (user: RegisterForm) => {
     where: { id: user.inviteCode },
   });
 
-  if (!fetchCode || fetchCode.used) {
-    return null;
+  if (!fetchCode) {
+    return { error: "Vigane kood" };
+  }
+
+  if (fetchCode.used) {
+    return { error: "Kood on juba kasutatud" };
   }
 
   const newUser = await prisma.user.create({
     data: {
-      username: user.username,
+      username: user.username.toLocaleLowerCase("et"),
       password: passwordHash,
+      shift: fetchCode.shift,
     },
   });
 
@@ -27,5 +32,5 @@ export const createUser = async (user: RegisterForm) => {
     where: { id: fetchCode.id },
   });
 
-  return { id: newUser.id, username: user.username };
+  return { id: newUser.id, username: newUser.username };
 };

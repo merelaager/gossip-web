@@ -99,10 +99,10 @@ export async function register(user: RegisterForm) {
   }
 
   const newUser = await createUser(user);
-  if (!newUser) {
+  if (newUser.error) {
     return json(
       {
-        error: `Viga uue kasutaja loomisel`,
+        error: newUser.error,
         fields: {
           username: user.username,
           password: user.password,

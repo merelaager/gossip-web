@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Form, useActionData } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
 import {
-  ActionFunction,
+  ActionFunctionArgs,
   json,
   LoaderFunction,
   redirect,
@@ -19,7 +19,7 @@ import {
 import { getUser, login, register } from "~/utils/auth.server";
 import { badRequest } from "~/utils/request.server";
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const action = formData.get("_action");
   const username = formData.get("username");
@@ -39,16 +39,12 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   if (action === "register" && typeof inviteCode !== "string") {
-    return json(
-      { error: `Vigased vormi andmed`, form: action },
-      { status: StatusCodes.BAD_REQUEST },
-    );
+    return json({ errors: { inviteCode: "Kood peab olema sõne" } });
   }
 
   const errors = {
     username: validateUsername(username),
     password: validatePassword(password),
-
     ...(action === "register"
       ? {
           inviteCode: validateInviteCode((inviteCode as string) || ""),
@@ -57,14 +53,7 @@ export const action: ActionFunction = async ({ request }) => {
   };
 
   if (Object.values(errors).some(Boolean)) {
-    return json(
-      {
-        errors,
-        fields: { username, password, inviteCode },
-        form: action,
-      },
-      { status: StatusCodes.BAD_REQUEST },
-    );
+    return json({ errors });
   }
 
   switch (action) {
@@ -94,40 +83,11 @@ export default function Login() {
   const [action, setAction] = useState("login");
   const actionData = useActionData<typeof action>();
 
-  const firstLoad = useRef(true);
-  const [errors, setErrors] = useState(actionData?.errors || {});
-  const [formError, setFormError] = useState(actionData?.error || "");
-
-  console.log(actionData);
-
   const [formData, setFormData] = useState({
     username: actionData?.fields?.username || "",
     password: actionData?.fields?.password || "",
     inviteCode: actionData?.fields?.inviteCode || "",
   });
-
-  useEffect(() => {
-    if (!firstLoad.current) {
-      const newState = {
-        username: "",
-        password: "",
-        inviteCode: "",
-      };
-      setErrors(newState);
-      setFormError("");
-      setFormData(newState);
-    }
-  }, [action]);
-
-  useEffect(() => {
-    if (!firstLoad.current) {
-      setFormError("");
-    }
-  }, [formData]);
-
-  useEffect(() => {
-    firstLoad.current = false;
-  }, []);
 
   // Updates the form data when an input changes
   const handleInputChange = (
@@ -154,14 +114,14 @@ export default function Login() {
 
         <Form method="POST" className="rounded-2xl bg-pink-200 mx-4 p-4">
           <div className="text-xs font-semibold text-center tracking-wide text-red-500 w-full">
-            {formError}
+            {actionData?.error}
           </div>
           <FormField
             htmlFor="username"
             label="Kasutajanimi"
             value={formData.username}
             onChange={(e) => handleInputChange(e, "username")}
-            error={errors?.email}
+            error={actionData?.errors?.username}
           />
 
           <FormField
@@ -170,7 +130,7 @@ export default function Login() {
             label="Salasõna"
             value={formData.password}
             onChange={(e) => handleInputChange(e, "password")}
-            error={errors?.password}
+            error={actionData?.errors?.password}
           />
 
           {action === "register" && (
@@ -179,7 +139,7 @@ export default function Login() {
               label="Kood"
               onChange={(e) => handleInputChange(e, "inviteCode")}
               value={formData.inviteCode}
-              error={errors?.inviteCode}
+              error={actionData?.errors?.inviteCode}
             />
           )}
 
