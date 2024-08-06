@@ -31,10 +31,22 @@ export default function PostsRoute() {
           </Link>
         </div>
         <div className="absolute bottom-0 w-full bg-pink-200 border-t border-pink-500">
-          <nav className="h-14 flex items-center justify-center">
+          <nav className="h-14 flex items-center justify-center gap-4">
             <Link to="/posts" className="p-2 flex items-center justify-center">
               <span className="material-symbols-outlined">home</span>
             </Link>
+            {data.role === $Enums.Role.ADMIN ? (
+              <Link
+                to="/posts/waitlist"
+                className="p-2 flex items-center justify-center"
+              >
+                <span className="material-symbols-outlined">
+                  pending_actions
+                </span>
+              </Link>
+            ) : (
+              ""
+            )}
           </nav>
         </div>
       </div>
