@@ -32,6 +32,12 @@ export default function PostsRoute() {
         </div>
         <div className="absolute bottom-0 w-full bg-pink-200 border-t border-pink-500">
           <nav className="h-14 flex items-center justify-center gap-4">
+            <Link
+              to="/posts/my"
+              className="p-2 flex items-center justify-center"
+            >
+              <span className="material-symbols-outlined">person</span>
+            </Link>
             <Link to="/posts" className="p-2 flex items-center justify-center">
               <span className="material-symbols-outlined">home</span>
             </Link>
@@ -57,9 +63,12 @@ export default function PostsRoute() {
               <Link to="/posts">
                 <h1 className="mx-4 pt-2">Postitused</h1>
               </Link>
+              <Link to="/posts/my">
+                <span className="mx-4 pt-2">Minu postitused</span>
+              </Link>
               {data.role === $Enums.Role.ADMIN ? (
                 <Link to="/posts/waitlist">
-                  <h1 className="mx-4 pt-2">Ootel</h1>
+                  <span className="mx-4 pt-2">Ootel</span>
                 </Link>
               ) : (
                 ""
