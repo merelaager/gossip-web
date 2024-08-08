@@ -1,4 +1,9 @@
-import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
 import { prisma } from "~/utils/db.server";
 import { useLoaderData } from "@remix-run/react";
 import { requireUserId } from "~/utils/auth.server";
@@ -33,23 +38,49 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     throw new Error("Õigused puuduvad");
   }
 
-  await prisma.post.update({
-    where: { id: params.postId },
-    data: { published: true },
-  });
+  const form = await request.formData();
 
-  return null;
+  switch (form.get("intent")) {
+    case "approve":
+      await prisma.post.update({
+        where: { id: params.postId },
+        data: { published: true },
+      });
+      break;
+    case "delete":
+      await prisma.post.delete({
+        where: { id: params.postId },
+      });
+      break;
+  }
+
+  return redirect("/posts");
 };
 
 export default function PostRoute() {
   const data = useLoaderData<typeof loader>();
 
   const buttons = (
-    <form method="post" className="py-4 mx-4">
-      <button type="submit" className="bg-pink-400 px-4 py-2 rounded">
-        Kinnita
-      </button>
-    </form>
+    <>
+      <form method="post" className="py-4 mx-4">
+        <button
+          name="intent"
+          type="submit"
+          value="approve"
+          className="bg-pink-400 px-4 py-2 rounded mr-4"
+        >
+          Kinnita
+        </button>
+        <button
+          name="intent"
+          type="submit"
+          value="delete"
+          className="bg-pink-400 px-4 py-2 rounded"
+        >
+          Kustuta
+        </button>
+      </form>
+    </>
   );
 
   const { post } = data;
