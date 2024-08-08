@@ -17,7 +17,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   const posts = await prisma.post.findMany({
-    where: { shift: userData.shift, published: true },
+    where: { shift: userData.shift, published: true, hidden: false },
     orderBy: { createdAt: "desc" },
   });
 

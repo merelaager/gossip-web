@@ -29,6 +29,7 @@ model Post {
   title     String
   content   String   @db.Text
   published Boolean  @default(false)
+  hidden    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id])

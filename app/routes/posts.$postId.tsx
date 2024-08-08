@@ -48,8 +48,9 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       });
       break;
     case "delete":
-      await prisma.post.delete({
+      await prisma.post.update({
         where: { id: params.postId },
+        data: { hidden: true },
       });
       break;
   }
