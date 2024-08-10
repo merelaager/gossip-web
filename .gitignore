@@ -16,3 +16,7 @@ prisma/*.db
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# User uploads
+uploads/*
+!uploads/.gitkeep
