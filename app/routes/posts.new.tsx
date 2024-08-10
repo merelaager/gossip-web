@@ -44,18 +44,29 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  const uploadHandler = unstable_composeUploadHandlers(
-    // get the image as a file
-    unstable_createFileUploadHandler({
-      maxPartSize: MAX_FILE_SIZE,
-      directory: IMG_DIR,
-      file: ({ filename }) => filename,
-    }),
-    // parse everything else into memory
-    unstable_createMemoryUploadHandler(),
-  );
+  let form = null;
 
-  const form = await unstable_parseMultipartFormData(request, uploadHandler);
+  try {
+    const uploadHandler = unstable_composeUploadHandlers(
+      // get the image as a file
+      unstable_createFileUploadHandler({
+        maxPartSize: MAX_FILE_SIZE,
+        directory: IMG_DIR,
+        file: ({ filename }) => filename,
+      }),
+      // parse everything else into memory
+      unstable_createMemoryUploadHandler(),
+    );
+    form = await unstable_parseMultipartFormData(request, uploadHandler);
+  } catch (e) {
+    console.error(e);
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: "Internal server error.",
+    });
+  }
+
   const title = form.get("title");
   const content = form.get("content");
   const image = form.get("image");
