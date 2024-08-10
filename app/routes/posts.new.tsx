@@ -28,7 +28,7 @@ type newPostType = {
   imageId?: string;
 };
 
-const MAX_FILE_SIZE = 2e6;
+const MAX_FILE_SIZE = 5e6;
 const IMG_DIR = "./public/img";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -241,7 +241,7 @@ export default function NewPostRoute() {
                   Lohista pilt siia või klõpsa, et valida pilt
                 </p>
                 <p className="md:hidden">Vajuta siia, et valida pilt</p>
-                <span>(max: 1 pilt, 2MB)</span>
+                <span>(max: 1 pilt, 5MB)</span>
                 <aside>{thumbs}</aside>
               </>
             )}
