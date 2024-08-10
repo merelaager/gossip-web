@@ -5,6 +5,7 @@ node_modules
 /.cache
 /build
 /public/build
+/public/img
 .env
 
 prisma/*.db
@@ -16,7 +17,3 @@ prisma/*.db
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
-# User uploads
-uploads/*
-!uploads/.gitkeep

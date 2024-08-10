@@ -4,11 +4,18 @@ import React from "react";
 interface PostProps {
   id: string;
   title: string;
-  content: string;
+  content: string | null;
+  imageId: string | null;
   createdAt: string;
 }
 
-export const PostCard = ({ id, title, content, createdAt }: PostProps) => {
+export const PostCard = ({
+  id,
+  title,
+  content,
+  imageId,
+  createdAt,
+}: PostProps) => {
   const date = new Date(createdAt);
   const localisedDate = date.toLocaleDateString("et-EE", {
     // year: "2-digit",
@@ -30,6 +37,13 @@ export const PostCard = ({ id, title, content, createdAt }: PostProps) => {
             </span>
           </div>
           <p className="line-clamp-5 whitespace-pre-wrap">{content}</p>
+          {imageId ? (
+            <div className="flex overflow-hidden">
+              <img src={`/img/${imageId}`} className="max-h-[100px] w-auto" />
+            </div>
+          ) : (
+            ""
+          )}
         </article>
       </Link>
     </li>

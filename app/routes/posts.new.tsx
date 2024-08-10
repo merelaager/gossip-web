@@ -22,7 +22,14 @@ interface FileWithPreview extends File {
   preview: string;
 }
 
+type newPostType = {
+  title: string;
+  content?: string;
+  imageId?: string;
+};
+
 const MAX_FILE_SIZE = 2e6;
+const IMG_DIR = "./public/img";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -41,6 +48,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     // get the image as a file
     unstable_createFileUploadHandler({
       maxPartSize: MAX_FILE_SIZE,
+      directory: IMG_DIR,
       file: ({ filename }) => filename,
     }),
     // parse everything else into memory
@@ -52,7 +60,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const content = form.get("content");
   const image = form.get("image");
 
-  if (typeof content !== "string" || typeof title !== "string") {
+  if (typeof title !== "string" || (content && typeof content !== "string")) {
     return badRequest({
       fieldErrors: null,
       fields: null,
@@ -60,17 +68,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  if (title.length == 0 || content.length == 0) {
+  if (title.length === 0) {
     return badRequest({
       fieldErrors: null,
       fields: null,
-      formError: "Form fields cannot be empty.",
+      formError: "Title cannot be empty.",
     });
   }
 
-  if ((image as Blob).size !== 0) {
+  const hasImage = (image as Blob).size !== 0;
+
+  if (!content && !hasImage) {
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: "There must be text or an image.",
+    });
+  }
+
+  let filename = "";
+
+  if (hasImage) {
     const imageFile = image as NodeOnDiskFile;
-    let filename = "";
 
     try {
       const fileHash: string = await new Promise((resolve, reject) => {
@@ -100,12 +119,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       console.error(e);
     }
 
-    fs.copyFile(imageFile.getFilePath(), `./uploads/${filename}`, (err) => {
+    fs.rename(imageFile.getFilePath(), `${IMG_DIR}/${filename}`, (err) => {
       if (err) console.error(err);
     });
   }
 
-  const fields = { title, content };
+  // TODO: replace custom type with Prisma's generated type
+  const fields: newPostType = { title };
+  if (filename) {
+    fields.imageId = filename;
+  }
+  if (content) {
+    fields.content = content;
+  }
 
   const post = await prisma.post.create({
     data: { ...fields, authorId: userId, shift: userData.shift },
@@ -192,7 +218,12 @@ export default function NewPostRoute() {
       >
         <div>
           <label htmlFor="title">Pealkiri:</label>
-          <input type="text" name="title" className={borderStyle + " block"} />
+          <input
+            type="text"
+            name="title"
+            required
+            className={borderStyle + " block"}
+          />
         </div>
         <div>
           <label htmlFor="content">Sisu:</label>

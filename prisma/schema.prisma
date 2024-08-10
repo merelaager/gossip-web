@@ -27,7 +27,8 @@ model User {
 model Post {
   id        String   @id @default(uuid())
   title     String
-  content   String   @db.Text
+  content   String?  @db.Text
+  imageId   String?
   published Boolean  @default(false)
   hidden    Boolean  @default(false)
   createdAt DateTime @default(now())
