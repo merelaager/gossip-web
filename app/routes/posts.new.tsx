@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { useEffect, useState } from "react";
 import {
   ActionFunctionArgs,
+  MaxPartSizeExceededError,
   NodeOnDiskFile,
   redirect,
   unstable_composeUploadHandlers,
@@ -60,6 +61,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     form = await unstable_parseMultipartFormData(request, uploadHandler);
   } catch (e) {
     console.error(e);
+    if (e instanceof MaxPartSizeExceededError) {
+      return badRequest({
+        fieldErrors: null,
+        fields: null,
+        formError: "File size too large.",
+      });
+    }
     return badRequest({
       fieldErrors: null,
       fields: null,

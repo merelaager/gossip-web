@@ -35,6 +35,7 @@ export default function MyPostsRoute() {
           id={post.id}
           title={post.title}
           content={post.content}
+          imageId={post.imageId}
           createdAt={post.createdAt}
         />
       ))}

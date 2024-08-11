@@ -44,7 +44,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     case "approve":
       await prisma.post.update({
         where: { id: params.postId },
-        data: { published: true },
+        data: { published: true, approverId: userId },
       });
       break;
     case "delete":
