@@ -24,6 +24,15 @@ export const validatePassword = (password: string): string | undefined => {
   }
 };
 
+export const validatePasswordConfirmation = (
+  password: string,
+  confirmation: string,
+): string | undefined => {
+  if (password !== confirmation) {
+    return "Salasõna ja kinnitus ei klapi";
+  }
+};
+
 export const validateInviteCode = (inviteCode: string): string | undefined => {
   if (inviteCode.length < 5) {
     return "Kood peab olema vähemalt 5 tähemärki pikk";

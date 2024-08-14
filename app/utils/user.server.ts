@@ -1,5 +1,5 @@
 import * as argon2 from "argon2";
-import type { RegisterForm } from "./types.server";
+import type { RegisterForm, SetPasswordForm } from "./types.server";
 
 import { prisma } from "./db.server";
 
@@ -34,4 +34,15 @@ export const createUser = async (user: RegisterForm) => {
   });
 
   return { id: newUser.id, username: newUser.username };
+};
+
+export const setUserPassword = async (user: SetPasswordForm) => {
+  const passwordHash = await argon2.hash(user.password);
+
+  await prisma.user.update({
+    where: { id: user.userId },
+    data: { password: passwordHash },
+  });
+
+  return true;
 };
