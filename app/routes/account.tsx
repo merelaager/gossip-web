@@ -52,10 +52,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
   const userData = await prisma.user.findUnique({
     where: { id: userId },
-    select: { role: true },
+    select: { role: true, username: true },
   });
 
-  return json({ role: userData?.role });
+  return json({ role: userData?.role, username: userData?.username });
 };
 
 export default function AccountRoute() {
@@ -88,6 +88,10 @@ export default function AccountRoute() {
             </h2>
             <div className="mx-4 pb-2">
               <div>
+                <span>Kasutajanimi: </span>
+                <span>{data.username}</span>
+              </div>
+              <div className="mt-2">
                 <p>Muuda salasõna</p>
                 <Form method="POST">
                   <div>
