@@ -2,10 +2,10 @@ import type { LoginForm, RegisterForm } from "./types.server";
 
 import * as argon2 from "argon2";
 import { StatusCodes } from "http-status-codes";
-import { createCookieSessionStorage, json, redirect } from "@remix-run/node";
 
 import { prisma } from "./db.server";
 import { createUser } from "./user.server";
+import { createCookieSessionStorage, data, redirect } from "react-router";
 
 const sessionSecret = process.env.SESSION_SECRET;
 
@@ -92,7 +92,7 @@ export async function register(user: RegisterForm) {
   });
 
   if (exists) {
-    return json(
+    return data(
       { error: `Kasutajanimi on juba kasutuses` },
       { status: StatusCodes.BAD_REQUEST },
     );
@@ -100,7 +100,7 @@ export async function register(user: RegisterForm) {
 
   const newUser = await createUser(user);
   if (newUser.error) {
-    return json(
+    return data(
       {
         error: newUser.error,
         fields: {
@@ -122,7 +122,7 @@ export async function login({ username, password }: LoginForm) {
   });
 
   if (!user || !(await argon2.verify(user.password, password)))
-    return json(
+    return data(
       { error: `Vigane kasutajanimi või salasõna` },
       { status: StatusCodes.BAD_REQUEST },
     );

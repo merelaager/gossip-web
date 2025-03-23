@@ -1,12 +1,12 @@
-import { Link } from "@remix-run/react";
 import React from "react";
+import { Link } from "react-router";
 
 interface PostProps {
   id: string;
   title: string;
   content: string | null;
   imageId: string | null;
-  createdAt: string;
+  createdAt: Date;
 }
 
 export const PostCard = ({

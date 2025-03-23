@@ -1,5 +1,5 @@
-import { Link } from "@remix-run/react";
 import React from "react";
+import { Link } from "react-router";
 
 interface SidebarProps {
   isAdmin: boolean;
@@ -29,7 +29,7 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
         </nav>
         <div className="">
           <Link
-            to="new"
+            to="/posts/new"
             className="block mx-4 bg-pink-400 cursor-pointer rounded"
           >
             <p className="px-4 py-2 text-center">Loo postitus</p>

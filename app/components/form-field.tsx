@@ -37,7 +37,7 @@ export function FormField({
         type={type}
         id={htmlFor}
         name={htmlFor}
-        className="w-full p-2 rounded-xl my-2"
+        className="w-full p-2 rounded-xl my-2 bg-white"
         value={value}
       />
 

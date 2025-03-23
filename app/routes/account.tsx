@@ -1,7 +1,5 @@
-import { ActionFunctionArgs, json, LoaderFunction } from "@remix-run/node";
 import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { $Enums } from "@prisma/client";
 import { MobileSidebar, Sidebar } from "~/components/sidebar";
 import React, { useState } from "react";
@@ -12,6 +10,13 @@ import {
 } from "~/utils/validators.server";
 import { setUserPassword } from "~/utils/user.server";
 import { StatusCodes } from "http-status-codes";
+import {
+  type ActionFunctionArgs,
+  Form,
+  type LoaderFunctionArgs,
+  useActionData,
+  useLoaderData,
+} from "react-router";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -40,22 +45,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   };
 
   if (Object.values(errors).some(Boolean)) {
-    return json({ errors });
+    return { errors };
   }
 
   const res = await setUserPassword({ userId, password });
-  if (res) return json({ status: StatusCodes.OK });
-  return json({ error: "", status: StatusCodes.INTERNAL_SERVER_ERROR });
+  if (res) return { status: StatusCodes.OK };
+  return { error: "", status: StatusCodes.INTERNAL_SERVER_ERROR };
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userData = await prisma.user.findUnique({
     where: { id: userId },
     select: { role: true, username: true },
   });
 
-  return json({ role: userData?.role, username: userData?.username });
+  return { role: userData?.role, username: userData?.username };
 };
 
 export default function AccountRoute() {
@@ -101,7 +106,7 @@ export default function AccountRoute() {
                       type="password"
                       id="password"
                       name="password"
-                      className="w-full p-2 rounded-xl my-2"
+                      className="w-full p-2 rounded-xl my-2 bg-white"
                       required
                     />
 
@@ -119,7 +124,7 @@ export default function AccountRoute() {
                       type="password"
                       id="password-confirmation"
                       name="password-confirmation"
-                      className="w-full p-2 rounded-xl my-2"
+                      className="w-full p-2 rounded-xl my-2 bg-white"
                       required
                     />
 

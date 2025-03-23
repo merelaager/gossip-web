@@ -1,13 +1,12 @@
-import {
-  ActionFunctionArgs,
-  json,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
 import { prisma } from "~/utils/db.server";
-import { useLoaderData } from "@remix-run/react";
 import { requireUserId } from "~/utils/auth.server";
 import { $Enums } from "@prisma/client";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  redirect,
+  useLoaderData,
+} from "react-router";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const post = await prisma.post.findUnique({
@@ -24,7 +23,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     select: { role: true },
   });
 
-  return json({ role: userRole?.role, post, published: post.published });
+  return { role: userRole?.role, post, published: post.published };
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {

@@ -1,9 +1,10 @@
-import { LoaderFunction } from "@remix-run/node";
+import { type LoaderFunctionArgs, redirect } from "react-router";
+
 import { requireUserId } from "~/utils/auth.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUserId(request);
-  return null;
+  return redirect("/posts");
 };
 
 export default function Home() {

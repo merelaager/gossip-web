@@ -1,23 +1,17 @@
-import fs, { createReadStream } from "node:fs";
-import { createHash } from "node:crypto";
+import { v4 as uuidv4 } from "uuid";
 
 import { useEffect, useState } from "react";
-import {
-  ActionFunctionArgs,
-  MaxPartSizeExceededError,
-  NodeOnDiskFile,
-  redirect,
-  unstable_composeUploadHandlers,
-  unstable_createFileUploadHandler,
-  unstable_createMemoryUploadHandler,
-  unstable_parseMultipartFormData,
-} from "@remix-run/node";
-import { Form } from "@remix-run/react";
 import { useDropzone } from "react-dropzone";
 
 import { prisma } from "~/utils/db.server";
 import { requireUserId } from "~/utils/auth.server";
 import { badRequest, internalServerError } from "~/utils/request.server";
+import { type ActionFunctionArgs, Form, redirect } from "react-router";
+import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
+import { openFile, writeFile } from "@mjackson/lazy-file/fs";
+import { createHash } from "node:crypto";
+import * as fs from "node:fs";
+import { createReadStream } from "node:fs";
 
 interface FileWithPreview extends File {
   preview: string;
@@ -45,39 +39,39 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  let form = null;
+  // Create temporary file identifier
+  const tempId = uuidv4();
+  const filePathTemp = `${IMG_DIR}/${tempId}.tmp`;
+  let imageType = "";
 
-  try {
-    const uploadHandler = unstable_composeUploadHandlers(
-      // get the image as a file
-      unstable_createFileUploadHandler({
-        maxPartSize: MAX_FILE_SIZE,
-        directory: IMG_DIR,
-        file: ({ filename }) => filename,
-      }),
-      // parse everything else into memory
-      unstable_createMemoryUploadHandler(),
-    );
-    form = await unstable_parseMultipartFormData(request, uploadHandler);
-  } catch (e) {
-    console.error(e);
-    if (e instanceof MaxPartSizeExceededError) {
-      return badRequest({
-        fieldErrors: null,
-        fields: null,
-        formError: "File size too large.",
-      });
+  const uploadHandler = async (fileUpload: FileUpload) => {
+    if (
+      fileUpload.fieldName === "image" &&
+      fileUpload.type.startsWith("image/")
+    ) {
+      if (fileUpload.size >= MAX_FILE_SIZE) {
+        imageType = "failed";
+        return null;
+      }
+      await writeFile(filePathTemp, fileUpload);
+      imageType = fileUpload.type;
+      return openFile(filePathTemp);
     }
+  };
+
+  const formData = await parseFormData(request, uploadHandler);
+
+  const title = formData.get("title");
+  const content = formData.get("content");
+  const image = formData.get("image");
+
+  if (imageType === "failed") {
     return badRequest({
       fieldErrors: null,
       fields: null,
-      formError: "Internal server error.",
+      formError: "File size too large.",
     });
   }
-
-  const title = form.get("title");
-  const content = form.get("content");
-  const image = form.get("image");
 
   if (typeof title !== "string" || (content && typeof content !== "string")) {
     return badRequest({
@@ -95,7 +89,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  const hasImage = (image as Blob).size !== 0;
+  const hasImage = image && (image as Blob).size !== 0;
 
   if (!content && !hasImage) {
     return badRequest({
@@ -108,19 +102,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   let filename = "";
 
   if (hasImage) {
-    const imageFile = image as NodeOnDiskFile;
-
+    const imageFile = image as File;
     try {
       const fileHash: string = await new Promise((resolve, reject) => {
         const hash = createHash("sha256");
-        const rs = createReadStream(imageFile.getFilePath());
+        const rs = createReadStream(filePathTemp);
         rs.on("error", reject);
         rs.on("data", (chunk) => hash.update(chunk));
         rs.on("end", () => resolve(hash.digest("hex")));
       });
 
       let extension = "";
-      switch (imageFile.type) {
+      switch (imageType) {
         case "image/png":
           extension = ".png";
           break;
@@ -138,14 +131,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       console.error(e);
     }
 
-    fs.rename(imageFile.getFilePath(), `${IMG_DIR}/${filename}`, (err) => {
+    console.log(filename);
+
+    fs.rename(filePathTemp, `${IMG_DIR}/${filename}`, (err) => {
       if (err) console.error(err);
     });
   }
 
   // TODO: replace custom type with Prisma's generated type
   const fields: newPostType = { title };
-  if (filename) {
+  if (hasImage) {
     fields.imageId = filename;
   }
   if (content) {
@@ -226,7 +221,7 @@ export default function NewPostRoute() {
     return () => files.forEach((file) => URL.revokeObjectURL(file.preview));
   }, []);
 
-  const borderStyle = "border-2 rounded";
+  const borderStyle = "border-2 rounded border-white";
   return (
     <div className="border-b border-pink-500 py-2 px-4">
       <p>Loo postitus</p>
@@ -241,12 +236,15 @@ export default function NewPostRoute() {
             type="text"
             name="title"
             required
-            className={borderStyle + " block"}
+            className={borderStyle + " block bg-white"}
           />
         </div>
         <div>
           <label htmlFor="content">Sisu:</label>
-          <textarea name="content" className={borderStyle + " block w-full"} />
+          <textarea
+            name="content"
+            className={borderStyle + " block w-full bg-white"}
+          />
           <div
             {...getRootProps()}
             className="mt-2 flex flex-col items-center p-6 bg-pink-200 rounded border border-dashed border-pink-500"

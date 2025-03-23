@@ -1,10 +1,10 @@
 import qs from "qs";
 import { randomBytes } from "node:crypto";
-import { ActionFunction } from "@remix-run/node";
 import { StatusCodes } from "http-status-codes";
 import { prisma } from "~/utils/db.server";
+import type { ActionFunctionArgs } from "react-router";
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const body = await request.text();
   const parsed = qs.parse(body);
   if (typeof parsed === "undefined") {

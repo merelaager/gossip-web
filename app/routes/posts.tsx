@@ -1,20 +1,19 @@
 import React from "react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import { json, LoaderFunction } from "@remix-run/node";
 
 import { prisma } from "~/utils/db.server";
 import { requireUserId } from "~/utils/auth.server";
 import { $Enums } from "@prisma/client";
 import { MobileSidebar, Sidebar } from "~/components/sidebar";
+import { type LoaderFunctionArgs, Outlet, useLoaderData } from "react-router";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const userData = await prisma.user.findUnique({
     where: { id: userId },
     select: { role: true },
   });
 
-  return json({ role: userData?.role });
+  return { role: userData?.role };
 };
 
 export default function PostsRoute() {

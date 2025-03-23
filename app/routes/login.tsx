@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { Form, useActionData } from "@remix-run/react";
-import { StatusCodes } from "http-status-codes";
+import { useState } from "react";
 import {
-  ActionFunctionArgs,
-  json,
-  LoaderFunction,
+  type ActionFunctionArgs,
+  data,
+  Form,
+  type LoaderFunctionArgs,
   redirect,
-} from "@remix-run/node";
+  useActionData,
+} from "react-router";
 
 import { Layout } from "~/components/layout";
 import { FormField } from "~/components/form-field";
-
+import { badRequest } from "~/utils/request.server";
+import { getUser, login, register } from "~/utils/auth.server";
+import { StatusCodes } from "http-status-codes";
 import {
   validateInviteCode,
   validatePassword,
   validateUsername,
 } from "~/utils/validators.server";
-import { getUser, login, register } from "~/utils/auth.server";
-import { badRequest } from "~/utils/request.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -39,7 +39,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (action === "register" && typeof inviteCode !== "string") {
-    return json({ errors: { inviteCode: "Kood peab olema sõne" } });
+    return { errors: { inviteCode: "Kood peab olema sõne" } };
   }
 
   const errors = {
@@ -53,7 +53,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   };
 
   if (Object.values(errors).some(Boolean)) {
-    return json({ errors });
+    return { errors };
   }
 
   switch (action) {
@@ -67,14 +67,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     default:
-      return json(
+      return data(
         { error: `Vigased vormi andmed` },
         { status: StatusCodes.BAD_REQUEST },
       );
   }
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   // If there's already a user in the session, redirect to the home page
   return (await getUser(request)) ? redirect("/") : null;
 };
