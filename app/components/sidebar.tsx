@@ -43,7 +43,7 @@ export const Sidebar = ({ isAdmin }: SidebarProps) => {
 export const MobileSidebar = ({ isAdmin }: SidebarProps) => {
   return (
     <div className="sm:hidden z-10">
-      <div className="absolute bottom-14 w-full flex justify-end items-center">
+      <div className="absolute right-0 bottom-14">
         <Link
           to="/posts/new"
           className="rounded-full w-14 h-14 bg-pink-200 border border-pink-500 mb-4 mr-4 flex justify-center items-center p-2"

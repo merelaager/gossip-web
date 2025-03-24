@@ -131,8 +131,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       console.error(e);
     }
 
-    console.log(filename);
-
     fs.rename(filePathTemp, `${IMG_DIR}/${filename}`, (err) => {
       if (err) console.error(err);
     });
