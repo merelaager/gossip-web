@@ -86,6 +86,11 @@ export default function PostRoute() {
   const { post } = data;
   return (
     <>
+      {!data.published ? (
+        <div className="bg-pink-400 px-4 py-2 text-pink-800">
+          <em>Postitus on ootel. Admin peab selle kinnitama.</em>
+        </div>
+      ) : null}
       <article className="bg-pink-300 px-4 py-2 border-b border-pink-500">
         <h3 className="font-bold">{post.title}</h3>
         <p className="whitespace-pre-wrap">{post.content}</p>
