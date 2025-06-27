@@ -33,8 +33,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     throw new Error("Postitust ei letiud");
   }
 
-  console.log(post);
-
   return { role: userRole?.role, post, published: post.published };
 };
 
@@ -50,7 +48,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   }
 
   const form = await request.formData();
-  console.log(form);
 
   const postId = params.postId;
   if (!postId) {
