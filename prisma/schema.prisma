@@ -23,22 +23,35 @@ model User {
   shift         Int
   code          InviteCode? @relation(fields: [codeId], references: [id])
   codeId        String?     @unique
+  likes         PostLike[]  @relation("UserLikes")
 }
 
 model Post {
-  id         String   @id @default(uuid())
+  id         String     @id @default(uuid())
   title      String
-  content    String?  @db.Text
+  content    String?    @db.Text
   imageId    String?
-  published  Boolean  @default(false)
-  hidden     Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  author     User     @relation("Posts", fields: [authorId], references: [id])
+  published  Boolean    @default(false)
+  hidden     Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  author     User       @relation("Posts", fields: [authorId], references: [id])
   authorId   String
-  approvedBy User?    @relation("ApprovedPosts", fields: [approverId], references: [id])
+  approvedBy User?      @relation("ApprovedPosts", fields: [approverId], references: [id])
   approverId String?
   shift      Int
+  likes      PostLike[] @relation("PostLikes")
+}
+
+model PostLike {
+  post      Post     @relation("PostLikes", fields: [postId], references: [id])
+  postId    String
+  user      User     @relation("UserLikes", fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([postId, userId])
 }
 
 model InviteCode {
