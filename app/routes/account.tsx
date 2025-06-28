@@ -1,22 +1,20 @@
-import { requireUserId } from "~/utils/auth.server";
-import { prisma } from "~/utils/db.server";
-import { $Enums } from "@prisma/client";
-import { MobileSidebar, Sidebar } from "~/components/sidebar";
 import React, { useState } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
+import { StatusCodes } from "http-status-codes";
+
+import { $Enums } from "@prisma/client";
+
+import { prisma } from "~/utils/db.server";
+import { requireUserId } from "~/utils/auth.server";
 import { badRequest } from "~/utils/request.server";
 import {
   validatePassword,
   validatePasswordConfirmation,
 } from "~/utils/validators.server";
 import { setUserPassword } from "~/utils/user.server";
-import { StatusCodes } from "http-status-codes";
-import {
-  type ActionFunctionArgs,
-  Form,
-  type LoaderFunctionArgs,
-  useActionData,
-  useLoaderData,
-} from "react-router";
+
+import { MobileSidebar, Sidebar } from "~/components/sidebar";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
