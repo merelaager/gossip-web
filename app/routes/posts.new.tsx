@@ -1,17 +1,17 @@
-import { v4 as uuidv4 } from "uuid";
+import { rename } from "fs/promises";
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
 
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { type ActionFunctionArgs, Form, redirect } from "react-router";
+import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
+import { openFile, writeFile } from "@mjackson/lazy-file/fs";
+import { v4 as uuidv4 } from "uuid";
 
 import { prisma } from "~/utils/db.server";
 import { requireUserId } from "~/utils/auth.server";
 import { badRequest, internalServerError } from "~/utils/request.server";
-import { type ActionFunctionArgs, Form, redirect } from "react-router";
-import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
-import { openFile, writeFile } from "@mjackson/lazy-file/fs";
-import { createHash } from "node:crypto";
-import * as fs from "node:fs";
-import { createReadStream } from "node:fs";
 
 interface FileWithPreview extends File {
   preview: string;
@@ -131,9 +131,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       console.error(e);
     }
 
-    fs.rename(filePathTemp, `${IMG_DIR}/${filename}`, (err) => {
-      if (err) console.error(err);
-    });
+    try {
+      await rename(filePathTemp, `${IMG_DIR}/${filename}`);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   // TODO: replace custom type with Prisma's generated type
