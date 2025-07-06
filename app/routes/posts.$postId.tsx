@@ -7,6 +7,7 @@ import {
   redirect,
   useLoaderData,
 } from "react-router";
+import { cdnPrefix } from "~/utils/vars";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -124,7 +125,10 @@ export default function PostRoute() {
         <h3 className="font-bold">{post.title}</h3>
         <p className="whitespace-pre-wrap">{post.content}</p>
         {post.imageId ? (
-          <img src={`/img/${post.imageId}`} className="max-h-[300px] m-auto" />
+          <img
+            src={cdnPrefix + post.imageId}
+            className="max-h-[300px] m-auto"
+          />
         ) : (
           ""
         )}

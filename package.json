@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc -b"
   },
   "dependencies": {
+    "@bunny.net/storage-sdk": "^0.3.0",
     "@mjackson/form-data-parser": "^0.9.1",
     "@mjackson/lazy-file": "^3.4.0",
     "@prisma/client": "^6.10.1",

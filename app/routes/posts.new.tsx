@@ -1,6 +1,6 @@
 import { rename } from "fs/promises";
 import { createHash } from "node:crypto";
-import { createReadStream } from "node:fs";
+import { createReadStream, rmSync } from "node:fs";
 
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { prisma } from "~/utils/db.server";
 import { requireUserId } from "~/utils/auth.server";
 import { badRequest, internalServerError } from "~/utils/request.server";
+import { uploadFileToCDN } from "~/utils/cdn.server";
 
 interface FileWithPreview extends File {
   preview: string;
@@ -24,7 +25,7 @@ type newPostType = {
 };
 
 const MAX_FILE_SIZE = 5e6;
-const IMG_DIR = "./public/img";
+const IMG_DIR = "./tmp";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -145,6 +146,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
   if (content) {
     fields.content = content;
+  }
+
+  try {
+    await uploadFileToCDN(filename);
+    rmSync(`${IMG_DIR}/${filename}`);
+  } catch (err) {
+    console.error(err);
   }
 
   const post = await prisma.post.create({

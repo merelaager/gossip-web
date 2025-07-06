@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
+import { cdnPrefix } from "~/utils/vars";
 
 interface PostProps {
   id: string;
@@ -42,7 +43,7 @@ export const PostCard = ({
           <p className="line-clamp-5 whitespace-pre-wrap">{content}</p>
           {imageId ? (
             <div className="flex overflow-hidden">
-              <img src={`/img/${imageId}`} className="max-h-[100px] w-auto" />
+              <img src={cdnPrefix + imageId} className="max-h-[100px] w-auto" />
             </div>
           ) : (
             ""

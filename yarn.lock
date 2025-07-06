@@ -333,6 +333,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bunny.net/storage-sdk@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@bunny.net/storage-sdk@npm:0.3.0"
+  dependencies:
+    dotenv: "npm:^16.4.7"
+    zod: "npm:^3.24.2"
+  checksum: 10c0/3e4616a50eaeeec605633b2263a6db74bd546b8b129717ae66a192f7fa083b755c9d5fefe22c8994f2a8619859a1a4251e5dda1cd55efcd163c29c295aaa4e37
+  languageName: node
+  linkType: hard
+
 "@emnapi/core@npm:^1.4.3":
   version: 1.4.3
   resolution: "@emnapi/core@npm:1.4.3"
@@ -1764,6 +1774,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.7":
+  version: 16.6.1
+  resolution: "dotenv@npm:16.6.1"
+  checksum: 10c0/15ce56608326ea0d1d9414a5c8ee6dcf0fffc79d2c16422b4ac2268e7e2d76ff5a572d37ffe747c377de12005f14b3cc22361e79fc7f1061cce81f77d2c973dc
+  languageName: node
+  linkType: hard
+
 "dotenv@npm:^17.0.0":
   version: 17.0.0
   resolution: "dotenv@npm:17.0.0"
@@ -2771,6 +2788,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ml-gossip@workspace:."
   dependencies:
+    "@bunny.net/storage-sdk": "npm:^0.3.0"
     "@mjackson/form-data-parser": "npm:^0.9.1"
     "@mjackson/lazy-file": "npm:^3.4.0"
     "@prisma/client": "npm:^6.10.1"
@@ -4051,5 +4069,12 @@ __metadata:
   version: 5.0.0
   resolution: "yallist@npm:5.0.0"
   checksum: 10c0/a499c81ce6d4a1d260d4ea0f6d49ab4da09681e32c3f0472dee16667ed69d01dae63a3b81745a24bd78476ec4fcf856114cb4896ace738e01da34b2c42235416
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.24.2":
+  version: 3.25.74
+  resolution: "zod@npm:3.25.74"
+  checksum: 10c0/59e38b046ac333b5bd1ba325a83b6798721227cbfb1e69dfc7159bd7824b904241ab923026edb714fafefec3624265ae374a70aee9a5a45b365bd31781ffa105
   languageName: node
   linkType: hard
