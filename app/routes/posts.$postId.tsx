@@ -138,7 +138,7 @@ export default function PostRoute() {
               name="intent"
               type="submit"
               value={userLiked ? "unliked" : "liked"}
-              className="material-symbols-outlined"
+              className="material-symbols-rounded"
               style={{ fontVariationSettings: fillState }}
             >
               favorite

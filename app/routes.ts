@@ -18,6 +18,7 @@ export default [
       route(":postId", "routes/posts.$postId.tsx"),
       route("new", "routes/posts.new.tsx"),
       route("my", "routes/posts.my.tsx"),
+      route("liked", "routes/posts.liked.tsx"),
       route("waitlist", "routes/posts.waitlist.tsx"),
     ]),
   ]),

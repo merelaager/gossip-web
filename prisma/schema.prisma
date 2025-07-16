@@ -15,6 +15,7 @@ model User {
   username      String      @unique
   password      String
   name          String?
+  isDeleted     Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   posts         Post[]      @relation("Posts")
@@ -35,7 +36,7 @@ model Post {
   hidden     Boolean    @default(false)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  author     User       @relation("Posts", fields: [authorId], references: [id])
+  author     User       @relation("Posts", fields: [authorId], references: [id], onDelete: Cascade)
   authorId   String
   approvedBy User?      @relation("ApprovedPosts", fields: [approverId], references: [id])
   approverId String?
@@ -44,9 +45,9 @@ model Post {
 }
 
 model PostLike {
-  post      Post     @relation("PostLikes", fields: [postId], references: [id])
+  post      Post     @relation("PostLikes", fields: [postId], references: [id], onDelete: Cascade)
   postId    String
-  user      User     @relation("UserLikes", fields: [userId], references: [id])
+  user      User     @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,13 +58,27 @@ model PostLike {
 model InviteCode {
   id        String   @id
   used      Boolean  @default(false)
+  name      String
+  role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  shift     Int      @default(4)
+  shift     Int
   usedBy    User?
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String   @db.Text
+  expiresAt DateTime @db.DateTime(0)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+
+  @@map("sessions")
 }
 
 enum Role {
   USER
   ADMIN
+  MOD
+  READER
 }

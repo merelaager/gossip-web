@@ -16,14 +16,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   const posts = await prisma.post.findMany({
-    where: { authorId: userId, hidden: false },
+    where: {
+      likes: { some: { userId } },
+      hidden: false,
+      published: true,
+    },
     orderBy: { createdAt: "desc" },
   });
 
   return { posts };
 };
 
-export default function MyPostsRoute() {
+export default function LikedPostsRoute() {
   const data = useLoaderData<typeof loader>();
 
   return (
