@@ -2,7 +2,7 @@ import React from "react";
 
 export default function PPRoute() {
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="max-w-xl mx-auto px-4">
       <h1 className="pb-4 font-black">
         Merelaagri gossipi üldised privaatsustingimused
       </h1>
