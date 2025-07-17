@@ -16,9 +16,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw redirect(`/`);
   }
 
-  const posts = await prisma.post.findMany({
+  const rawPosts = await prisma.post.findMany({
     where: { shift: userData.shift, published: false, hidden: false },
     orderBy: { createdAt: "desc" },
+    include: {
+      _count: {
+        select: { likes: true },
+      },
+      likes: { where: { userId } },
+    },
+  });
+
+  const posts = rawPosts.map((post) => {
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      imageId: post.imageId,
+      liked: post.likes.length > 0,
+      likeCount: post._count.likes ?? 0,
+      createdAt: post.createdAt,
+    };
   });
 
   return { posts };
@@ -36,6 +54,8 @@ export default function ApprovePostRoute() {
           title={post.title}
           content={post.content}
           imageId={post.imageId}
+          liked={post.liked}
+          likeCount={post.likeCount}
           createdAt={post.createdAt}
         />
       ))}

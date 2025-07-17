@@ -15,13 +15,30 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return { posts: [] };
   }
 
-  const posts = await prisma.post.findMany({
+  const rawPosts = await prisma.post.findMany({
     where: {
       likes: { some: { userId } },
       hidden: false,
       published: true,
     },
+    include: {
+      _count: {
+        select: { likes: true },
+      },
+    },
     orderBy: { createdAt: "desc" },
+  });
+
+  const posts = rawPosts.map((post) => {
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      imageId: post.imageId,
+      liked: true,
+      likeCount: post._count.likes ?? 0,
+      createdAt: post.createdAt,
+    };
   });
 
   return { posts };
@@ -39,6 +56,8 @@ export default function LikedPostsRoute() {
           title={post.title}
           content={post.content}
           imageId={post.imageId}
+          liked={post.liked}
+          likeCount={post.likeCount}
           createdAt={post.createdAt}
         />
       ))}

@@ -29,11 +29,29 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
   const totalPages = Math.ceil(publishedPostCount / postsPerPage);
 
-  const posts = await prisma.post.findMany({
+  const rawPosts = await prisma.post.findMany({
     where: { shift: userData.shift, published: true, hidden: false },
     orderBy: { createdAt: "desc" },
     skip: postsPerPage * (pageNumber - 1),
     take: postsPerPage,
+    include: {
+      _count: {
+        select: { likes: true },
+      },
+      likes: { where: { userId } },
+    },
+  });
+
+  const posts = rawPosts.map((post) => {
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      imageId: post.imageId,
+      liked: post.likes.length > 0,
+      likeCount: post._count.likes ?? 0,
+      createdAt: post.createdAt,
+    };
   });
 
   return { posts, currentPage: pageNumber, totalPages };
@@ -93,6 +111,8 @@ export default function PostsIndexRoute() {
             title={post.title}
             content={post.content}
             imageId={post.imageId}
+            liked={post.liked}
+            likeCount={post.likeCount}
             createdAt={post.createdAt}
           />
         ))}
