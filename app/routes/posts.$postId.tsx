@@ -5,6 +5,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   redirect,
+  useFetcher,
   useLoaderData,
 } from "react-router";
 import { cdnPrefix } from "~/utils/vars";
@@ -89,19 +90,21 @@ export default function PostRoute() {
   const buttons = (
     <>
       <form method="post" className="py-4 mx-4">
-        <button
-          name="intent"
-          type="submit"
-          value="approve"
-          className="bg-pink-400 px-4 py-2 rounded mr-4"
-        >
-          Kinnita
-        </button>
+        {!data.published && (
+          <button
+            name="intent"
+            type="submit"
+            value="approve"
+            className="bg-pink-400 px-4 py-2 rounded mr-4 hover:cursor-pointer"
+          >
+            Kinnita
+          </button>
+        )}
         <button
           name="intent"
           type="submit"
           value="delete"
-          className="bg-pink-400 px-4 py-2 rounded"
+          className="bg-pink-400 px-4 py-2 rounded hover:cursor-pointer"
         >
           Kustuta
         </button>
@@ -111,8 +114,9 @@ export default function PostRoute() {
 
   const { post } = data;
   const likeCount = post._count.likes ?? 0;
-  const userLiked = post.likes.length !== 0;
-  const fillState = `'FILL' ${userLiked ? 1 : 0}`;
+  const liked = post.likes.length !== 0;
+
+  const fetcher = useFetcher();
 
   return (
     <>
@@ -133,21 +137,21 @@ export default function PostRoute() {
           ""
         )}
         <div className="flex mt-2">
-          <form method="post">
+          <fetcher.Form method="post">
             <button
               name="intent"
               type="submit"
-              value={userLiked ? "unliked" : "liked"}
+              value={liked ? "unliked" : "liked"}
               className="material-symbols-rounded"
-              style={{ fontVariationSettings: fillState }}
+              style={{ fontVariationSettings: `'FILL' ${liked ? 1 : 0}` }}
             >
               favorite
             </button>
-          </form>
+          </fetcher.Form>
           <span>{likeCount}</span>
         </div>
       </article>
-      {!data.published && data.role === $Enums.Role.ADMIN ? buttons : ""}
+      {data.role === $Enums.Role.ADMIN && buttons}
     </>
   );
 }
