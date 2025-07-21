@@ -1,16 +1,22 @@
-export const validateUsername = (username: string): string | undefined => {
+export const validateUsername = (username: string): string | null => {
   if (username.length < 3) {
-    return "Kasutajanimi peab olema vähemalt 3 tähemärki pikk";
+    return "Kasutajanimi peab olema vähemalt kolm tähemärki pikk";
   }
 
   const textEncoder = new TextEncoder();
-  if (textEncoder.encode(username).length > 64) {
-    return "Kasutajanimi ei tohi olla pikem kui 64 tähemärki";
+  if (textEncoder.encode(username).length > 20) {
+    return "Kasutajanimi ei tohi olla pikem kui 20 tähemärki";
   }
 
   if (username.split(" ").length > 1) {
     return "Kasutajanimi ei tohi sisaldada tühikuid";
   }
+
+  if (!/^[a-z0-9._]+$/.test(username)) {
+    return "Kasutajanimi tohib sisaldada ainult ladina tähestiku tähti, numbreid, punkte ja allkriipse.";
+  }
+
+  return null;
 };
 
 export const validatePassword = (password: string): string | undefined => {

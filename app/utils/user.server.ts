@@ -1,36 +1,52 @@
 import * as argon2 from "argon2";
-import type { RegisterForm, SetPasswordForm } from "./types.server";
+import { CrockfordBase32 } from "crockford-base32";
+import type { SetPasswordForm } from "./types.server";
 
 import { prisma } from "./db.server";
 
-export const createUser = async (user: RegisterForm) => {
-  const passwordHash = await argon2.hash(user.password);
+export const createUser = async (
+  username: string,
+  password: string,
+  inviteCode: string,
+) => {
+  const passwordHash = await argon2.hash(password);
 
-  const fetchCode = await prisma.inviteCode.findUnique({
-    where: { id: user.inviteCode },
-  });
+  let rawToken = "";
 
-  if (!fetchCode) {
+  try {
+    rawToken = CrockfordBase32.decode(inviteCode, {
+      asNumber: true,
+    }).toString();
+  } catch (error) {
     return { error: "Vigane kood" };
   }
 
-  if (fetchCode.used) {
-    return { error: "Kood on juba kasutatud" };
+  const registrationInfo = await prisma.inviteCode.findUnique({
+    where: { id: rawToken },
+  });
+
+  if (!registrationInfo) {
+    return { error: "Vigane kood" };
+  }
+
+  if (registrationInfo.used) {
+    return { error: "Koodi on juba kasutatud" };
   }
 
   const newUser = await prisma.user.create({
     data: {
-      username: user.username.toLocaleLowerCase("et"),
+      username: username,
       password: passwordHash,
-      shift: fetchCode.shift,
-      codeId: fetchCode.id,
+      shift: registrationInfo.shift,
+      name: registrationInfo.name,
+      role: registrationInfo.role,
     },
   });
 
   // Expire the invite code.
   await prisma.inviteCode.update({
     data: { used: true },
-    where: { id: fetchCode.id },
+    where: { id: registrationInfo.id },
   });
 
   return { id: newUser.id, username: newUser.username };

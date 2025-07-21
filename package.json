@@ -17,6 +17,7 @@
     "@react-router/node": "^7.7.0",
     "argon2": "^0.43.1",
     "compression": "^1.8.1",
+    "crockford-base32": "^2.0.0",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "heic2any": "^0.0.4",

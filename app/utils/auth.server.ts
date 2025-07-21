@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import { prisma } from "./db.server";
 import { createUser } from "./user.server";
 import { createCookieSessionStorage, data, redirect } from "react-router";
+import { validateUsername } from "~/utils/validators.server";
 
 const sessionSecret = process.env.SESSION_SECRET;
 
@@ -87,6 +88,12 @@ export async function logout(request: Request) {
 }
 
 export async function register(user: RegisterForm) {
+  const cleanedUsername = user.username.toLocaleLowerCase("et");
+  const usernameError = validateUsername(cleanedUsername);
+  if (usernameError !== null) {
+    return { error: usernameError };
+  }
+
   const exists = await prisma.user.count({
     where: { username: user.username },
   });
@@ -98,7 +105,11 @@ export async function register(user: RegisterForm) {
     );
   }
 
-  const newUser = await createUser(user);
+  const newUser = await createUser(
+    cleanedUsername,
+    user.password,
+    user.inviteCode,
+  );
   if (newUser.error) {
     return data(
       {
