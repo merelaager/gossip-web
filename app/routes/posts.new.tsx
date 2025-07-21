@@ -31,12 +31,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
   const userData = await prisma.user.findUnique({
     where: { id: userId },
-    select: { shift: true },
+    select: { shift: true, role: true },
   });
 
   if (!userData?.shift) {
     return internalServerError({
       error: "User shift not found.",
+    });
+  }
+
+  if (userData.role === "READER") {
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: "Postitamine ei ole lubatud.",
     });
   }
 
