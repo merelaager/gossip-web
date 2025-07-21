@@ -22,7 +22,7 @@ import {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const action = formData.get("_action");
-  const username = formData.get("username");
+  let username = formData.get("username");
   const password = formData.get("password");
   let inviteCode = formData.get("inviteCode");
 
@@ -41,6 +41,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (action === "register" && typeof inviteCode !== "string") {
     return { errors: { inviteCode: "Kood peab olema sõne" } };
   }
+
+  username = username.toLocaleLowerCase("et");
 
   const errors = {
     username: validateUsername(username),
