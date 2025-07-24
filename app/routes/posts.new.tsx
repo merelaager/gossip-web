@@ -5,7 +5,12 @@ import { createReadStream, rmSync } from "node:fs";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { type ActionFunctionArgs, Form, redirect } from "react-router";
-import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
+import {
+  type FileUpload,
+  MaxFilesExceededError,
+  MaxFileSizeExceededError,
+  parseFormData,
+} from "@mjackson/form-data-parser";
 import { openFile, writeFile } from "@mjackson/lazy-file/fs";
 import { v4 as uuidv4 } from "uuid";
 
@@ -24,7 +29,8 @@ type newPostType = {
   imageId?: string;
 };
 
-const MAX_FILE_SIZE = 5e6;
+const ONE_MB = Math.pow(2, 20);
+const MAX_FILE_SIZE = 5 * ONE_MB;
 const IMG_DIR = "./tmp";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -34,13 +40,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     select: { shift: true, role: true, username: true },
   }))!;
 
-  console.log(
-    "Post creation attempt by",
-    userData.username,
-    "at",
-    new Date().toISOString(),
-  );
-
   if (userData.role === "READER") {
     return badRequest({
       fieldErrors: null,
@@ -48,6 +47,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       formError: "Postitamine ei ole lubatud.",
     });
   }
+
+  console.log(
+    "Post creation attempt by",
+    userData.username,
+    "at",
+    new Date().toISOString(),
+  );
 
   // Create a temporary file identifier
   const tempId = uuidv4();
@@ -69,7 +75,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   };
 
-  const formData = await parseFormData(request, uploadHandler);
+  let formData: FormData;
+  try {
+    formData = await parseFormData(
+      request,
+      {
+        maxFiles: 1,
+        maxFileSize: MAX_FILE_SIZE,
+      },
+      uploadHandler,
+    );
+  } catch (error) {
+    if (error instanceof MaxFilesExceededError) {
+      console.error("Request may not contain more than 1 file");
+      return badRequest({
+        fieldErrors: null,
+        fields: null,
+        formError: "Postitada saab vaid ühe faili.",
+      });
+    } else if (error instanceof MaxFileSizeExceededError) {
+      console.error("Files may not be larger than 5 MiB");
+      return badRequest({
+        fieldErrors: null,
+        fields: null,
+        formError: "Fail on liiga suur.",
+      });
+    } else {
+      console.error("An unexpected error occurred:", error);
+      return badRequest({
+        fieldErrors: null,
+        fields: null,
+        formError: "Serveri viga.",
+      });
+    }
+  }
 
   const title = formData.get("title");
   const content = formData.get("content");
