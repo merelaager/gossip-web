@@ -152,16 +152,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const fields: newPostType = { title };
   if (hasImage) {
     fields.imageId = filename;
-  }
-  if (content) {
-    fields.content = content;
+    try {
+      await uploadFileToCDN(filename);
+      rmSync(`${IMG_DIR}/${filename}`);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  try {
-    await uploadFileToCDN(filename);
-    rmSync(`${IMG_DIR}/${filename}`);
-  } catch (err) {
-    console.error(err);
+  if (content) {
+    fields.content = content;
   }
 
   const post = await prisma.post.create({
@@ -169,9 +169,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   console.log(
-    "New post by",
-    userData.username,
-    "with id",
+    `New post by '${userData.username}' with id`,
     post.id,
     "at",
     new Date().toISOString(),
