@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { prisma } from "~/utils/db.server";
 import { requireUserId } from "~/utils/auth.server";
-import { badRequest, internalServerError } from "~/utils/request.server";
+import { badRequest } from "~/utils/request.server";
 import { uploadFileToCDN } from "~/utils/cdn.server";
 
 interface FileWithPreview extends File {
@@ -29,16 +29,17 @@ const IMG_DIR = "./tmp";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
-  const userData = await prisma.user.findUnique({
+  const userData = (await prisma.user.findUnique({
     where: { id: userId },
-    select: { shift: true, role: true },
-  });
+    select: { shift: true, role: true, username: true },
+  }))!;
 
-  if (!userData?.shift) {
-    return internalServerError({
-      error: "User shift not found.",
-    });
-  }
+  console.log(
+    "Post creation attempt by",
+    userData.username,
+    "at",
+    new Date().toISOString(),
+  );
 
   if (userData.role === "READER") {
     return badRequest({
@@ -48,7 +49,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  // Create temporary file identifier
+  // Create a temporary file identifier
   const tempId = uuidv4();
   const filePathTemp = `${IMG_DIR}/${tempId}.tmp`;
   let imageType = "";
@@ -166,6 +167,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const post = await prisma.post.create({
     data: { ...fields, authorId: userId, shift: userData.shift },
   });
+
+  console.log(
+    "New post by",
+    userData.username,
+    "with id",
+    post.id,
+    "at",
+    new Date().toISOString(),
+  );
   return redirect(`/posts/${post.id}`);
 };
 
