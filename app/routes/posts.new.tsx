@@ -48,13 +48,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     });
   }
 
-  console.log(
-    "Post creation attempt by",
-    userData.username,
-    "at",
-    new Date().toISOString(),
-  );
-
   // Create a temporary file identifier
   const tempId = uuidv4();
   const filePathTemp = `${IMG_DIR}/${tempId}.tmp`;
@@ -207,12 +200,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     data: { ...fields, authorId: userId, shift: userData.shift },
   });
 
-  console.log(
-    `New post by '${userData.username}' with id`,
-    post.id,
-    "at",
-    new Date().toISOString(),
-  );
   return redirect(`/posts/${post.id}`);
 };
 
