@@ -45,7 +45,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     select: { role: true },
   });
 
-  if (!userRole || userRole.role !== $Enums.Role.ADMIN) {
+  if (!userRole) {
+    console.error("Permissions issue:", userId)
     throw new Error("Õigused puuduvad");
   }
 
@@ -58,12 +59,18 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   switch (form.get("intent")) {
     case "approve":
+      if (userRole.role !== $Enums.Role.ADMIN) {
+        throw new Error("Õigused puuduvad");
+      }
       await prisma.post.update({
         where: { id: params.postId },
         data: { published: true, approverId: userId },
       });
       return redirect("/posts");
     case "delete":
+      if (userRole.role !== $Enums.Role.ADMIN) {
+        throw new Error("Õigused puuduvad");
+      }
       await prisma.post.update({
         where: { id: params.postId },
         data: { hidden: true },
